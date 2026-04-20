@@ -1,0 +1,83 @@
+@model IEnumerable<ManageLibrary.Models.ShiftAssignment>
+
+@{
+    ViewData["Title"] = "Quản lý ca làm việc";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-calendar-alt me-1"></i>
+                Danh sách lịch trực
+            </div>
+            <a asp-action="Create" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> Phân công ca mới
+            </a>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="mb-3">
+                <div class="input-group" style="max-width: 400px;">
+                    <span class="input-group-text">Chọn ngày</span>
+                    <input type="date" name="dateFilter" class="form-control" value="@ViewData["DateFilter"]">
+                    <button class="btn btn-primary" type="submit"><i class="fas fa-filter"></i> Lọc</button>
+                    @if (!string.IsNullOrEmpty(ViewData["DateFilter"]?.ToString()))
+                    {
+                        <a asp-action="Index" class="btn btn-outline-danger">Xóa</a>
+                    }
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Ngày trực</th>
+                            <th>Ca làm việc</th>
+                            <th>Thời gian</th>
+                            <th>Nhân viên phụ trách</th>
+                            <th>Ghi chú</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.WorkDate.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    @if(item.Shift.ShiftName.Contains("Sáng")) {
+                                        <span class="badge bg-warning text-dark">@item.Shift.ShiftName</span>
+                                    } else if (item.Shift.ShiftName.Contains("Chiều")) {
+                                        <span class="badge bg-info text-dark">@item.Shift.ShiftName</span>
+                                    } else {
+                                        <span class="badge bg-dark">@item.Shift.ShiftName</span>
+                                    }
+                                </td>
+                                <td>@item.Shift.StartTime.ToString(@"hh\:mm") - @item.Shift.EndTime.ToString(@"hh\:mm")</td>
+                                <td><strong>@item.Employee.FullName</strong> (@item.EmployeeId)</td>
+                                <td>@item.Notes</td>
+                                <td class="text-center">
+                                    <form asp-action="Delete" asp-route-id="@item.AssignmentId" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa phân công này?');">
+                                        <button type="submit" class="btn btn-danger btn-sm" title="Xóa phân công">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center">Không có lịch trực nào</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

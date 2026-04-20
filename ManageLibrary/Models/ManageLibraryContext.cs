@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,6 +33,12 @@ public partial class ManageLibraryContext : DbContext
     public virtual DbSet<Publisher> Publishers { get; set; }
 
     public virtual DbSet<Reader> Readers { get; set; }
+
+    public virtual DbSet<LibraryCard> LibraryCards { get; set; }
+
+    public virtual DbSet<Shift> Shifts { get; set; }
+
+    public virtual DbSet<ShiftAssignment> ShiftAssignments { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -259,6 +265,55 @@ public partial class ManageLibraryContext : DbContext
             entity.Property(e => e.NationalId).HasMaxLength(20);
             entity.Property(e => e.Telephone).HasMaxLength(20);
             entity.Property(e => e.TypeOfReader).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<LibraryCard>(entity =>
+        {
+            entity.HasKey(e => e.CardId).HasName("PK__LibraryC__CardId");
+
+            entity.ToTable("LibraryCards");
+
+            entity.HasIndex(e => e.ReaderId, "UQ_LibraryCard_Reader").IsUnique();
+
+            entity.Property(e => e.CardId)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.ReaderId)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.Notes).HasMaxLength(200);
+
+            entity.HasOne(d => d.Reader).WithOne(p => p.LibraryCard)
+                .HasForeignKey<LibraryCard>(d => d.ReaderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__LibraryCard__ReaderId");
+        });
+
+        modelBuilder.Entity<Shift>(entity =>
+        {
+            entity.HasKey(e => e.ShiftId);
+            entity.ToTable("Shifts");
+        });
+
+        modelBuilder.Entity<ShiftAssignment>(entity =>
+        {
+            entity.HasKey(e => e.AssignmentId);
+            entity.ToTable("ShiftAssignments");
+
+            entity.HasIndex(e => new { e.EmployeeId, e.WorkDate }, "UQ_Employee_WorkDate").IsUnique();
+
+            entity.HasOne(d => d.Employee)
+                .WithMany(p => p.ShiftAssignments)
+                .HasForeignKey(d => d.EmployeeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ShiftAssignments__Employee");
+
+            entity.HasOne(d => d.Shift)
+                .WithMany(p => p.ShiftAssignments)
+                .HasForeignKey(d => d.ShiftId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ShiftAssignments__Shift");
         });
 
         OnModelCreatingPartial(modelBuilder);

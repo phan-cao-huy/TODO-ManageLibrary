@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations; // <-- BẠN PHẢI THÊM DÒNG NÀY
 
@@ -45,6 +45,8 @@ public partial class Reader
     public string? Department { get; set; } // Trường này có thể không bắt buộc
 
     public virtual Account? Account { get; set; }
+    
+    public virtual LibraryCard? LibraryCard { get; set; }
 
     public virtual ICollection<LoanSlip> LoanSlips { get; set; } = new List<LoanSlip>();
 }

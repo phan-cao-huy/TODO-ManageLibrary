@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
@@ -36,5 +36,8 @@ namespace ManageLibrary.Models
 
         [JsonIgnore]
         public virtual ICollection<LoanSlip> LoanSlips { get; set; } = new List<LoanSlip>();
+
+        [JsonIgnore]
+        public virtual ICollection<ShiftAssignment> ShiftAssignments { get; set; } = new List<ShiftAssignment>();
     }
 }
